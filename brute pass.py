@@ -21,3 +21,24 @@ def try_pin(pin):
         f"\r\n"
         f"{data}"
     )
+    
+    try:
+        # Connect and send request
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(5)  # Add timeout to prevent hanging
+            sock.connect((HOST, PORT))
+            sock.sendall(request.encode())
+            
+            # Receive response
+            response = b""
+            while True:
+                try:
+                    chunk = sock.recv(1024)
+                    if not chunk:
+                        break
+                    response += chunk
+                except socket.timeout:
+                    print(f"Socket timed out while receiving data for PIN {pin_str}")
+                    break
+        # Decode response
+        decoded = response.decode(errors="ignore")
